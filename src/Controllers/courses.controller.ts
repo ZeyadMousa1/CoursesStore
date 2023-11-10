@@ -15,15 +15,15 @@ class CoursesController
     }
 
     async getAllCourses(req: Request, res: Response) {
-        const courses = await courseService.getAllCourses();
+        const courses = await courseService.getAllCourses(req.query);
         res.status(200).json(courses);
     }
 
     async getCourse(req: Request, res: Response) {
         const courseId = req.params.id
         const course = await courseService.getCourse(courseId);
-        if (course instanceof Error)
-            res.status(404).json(course.message)
+        // if (course instanceof Error)
+        //     res.status(404).json(course.message)
         res.status(200).json(course);
     }
 

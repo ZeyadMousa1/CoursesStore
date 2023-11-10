@@ -20,9 +20,15 @@ class CourseService
         }
     }
 
-    async getAllCourses() {
+    async getAllCourses(query: any) {
+
+        //pagination
+        const limit = query.limit || 10;
+        const page = query.page || 1;
+        const skip = (page - 1) * limit;
+
         try {
-            const courses = await model.find({})
+            const courses = await model.find({},{__v: false}).limit(limit).skip(skip)
             return {
                 status: Status.SUCCESS,
                 result: courses.length,
@@ -35,7 +41,7 @@ class CourseService
 
     async getCourse(courseId: any) {
         try {
-            const course = await model.findById({ _id: courseId })
+            const course = await model.findById({ _id: courseId },{__v: false})
             if (!course) {
                 return {
                     status: Status.FAIL,
