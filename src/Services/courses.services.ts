@@ -1,6 +1,8 @@
 import { model } from "../models/courses.model"; 
 import { Icourse } from "../Interfaces/course.interface";
-import { Status } from "../utils/httpStatusText"; 
+import { Status } from "../utils/httpStatusText";
+import { AppError, createCustomError} from "../utils/appError";
+import { NextFunction } from "express";
 
 class CourseService 
 {
@@ -16,7 +18,7 @@ class CourseService
                 course
             }
         } catch (err) {
-            return err
+            throw err
         }
     }
 
@@ -35,7 +37,7 @@ class CourseService
                 data: { courses }
             };
          } catch (err) {
-            return err
+            throw err
         }
     }
 
@@ -43,10 +45,7 @@ class CourseService
         try {
             const course = await model.findById({ _id: courseId },{__v: false})
             if (!course) {
-                return {
-                    status: Status.FAIL,
-                    msg: 'course not found'                    
-                }
+                throw createCustomError(`no Course with this id ${courseId}`, 404, Status.FAIL)
             }
             return {
                 status: Status.SUCCESS,
@@ -55,10 +54,7 @@ class CourseService
                 },
             }
         } catch (err) {
-            return {
-                Status: Status.ERROR,
-                Error: err
-            };
+            throw err
         }
     }
 
@@ -74,17 +70,14 @@ class CourseService
                 { new: true }
             )
             if (!course) {
-                return {
-                    status: Status.FAIL,
-                    msg: 'course not found'
-                }
+                throw createCustomError(`no Course with this id ${courseId}`, 404, Status.FAIL)
             }
             return {
                 status: Status.SUCCESS,
                 course
             }
         } catch (err) {
-            return err
+            throw err
         }
     }
 
@@ -92,17 +85,14 @@ class CourseService
         try {
             const course = await model.deleteOne({ _id: courseId })
             if (!course) {
-                return {
-                    status: Status.FAIL,
-                    msg: 'course not found'
-                }
+                throw createCustomError(`no Course with this id ${courseId}`, 404, Status.FAIL)
             }
             return {
                 status: Status.SUCCESS,
                 data: null
             };
         } catch (err) {
-            return err
+            throw err
         }
     }
 }
