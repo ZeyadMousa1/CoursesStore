@@ -2,7 +2,8 @@ import express, {Application, NextFunction} from 'express';
 import { connect } from './db/mongooseConnect' 
 import cors  from 'cors';
 
-import { router } from './routes/courses.routes'
+import { courseRouter } from './routes/courses.routes'
+import {userRouter} from './routes/user.route'
 import { notFound, errorHandlerMiddelware } from './Middelware/ErrorHandling';
 
 const app: Application = express();
@@ -15,7 +16,8 @@ app.use(cors())
 app.use(express.json());
 
 // routes
-app.use('/api/v1/courses', router)
+app.use('/api/v1/courses', courseRouter)
+app.use('/api/v1/users', userRouter)
 
 // Errors Handling 
 app.use(errorHandlerMiddelware)

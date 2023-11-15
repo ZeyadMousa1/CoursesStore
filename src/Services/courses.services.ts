@@ -1,4 +1,4 @@
-import { model } from "../models/courses.model"; 
+import { courseModel } from "../models/courses.model"; 
 import { Icourse } from "../Interfaces/course.interface";
 import { Status } from "../utils/httpStatusText";
 import { AppError, createCustomError} from "../utils/appError";
@@ -9,7 +9,7 @@ class CourseService
     async craeteCourse(Icourse: Icourse) {
         const {title, price} = Icourse
         try { 
-            const course = await model.create({
+            const course = await courseModel.create({
                 title: title,
                 price: price
             })
@@ -30,7 +30,7 @@ class CourseService
         const skip = (page - 1) * limit;
 
         try {
-            const courses = await model.find({},{__v: false}).limit(limit).skip(skip)
+            const courses = await courseModel.find({},{__v: false}).limit(limit).skip(skip)
             return {
                 status: Status.SUCCESS,
                 result: courses.length,
@@ -43,7 +43,7 @@ class CourseService
 
     async getCourse(courseId: any) {
         try {
-            const course = await model.findById({ _id: courseId },{__v: false})
+            const course = await courseModel.findById({ _id: courseId },{__v: false})
             if (!course) {
                 throw createCustomError(`no Course with this id ${courseId}`, 404, Status.FAIL)
             }
@@ -61,7 +61,7 @@ class CourseService
     async updateCourse(Icourse: Icourse, courseId: any) {
         const {title, price} = Icourse
         try {
-            const course = await model.updateOne(
+            const course = await courseModel.updateOne(
                 { _id: courseId },
                 {
                     title: title,
@@ -83,7 +83,7 @@ class CourseService
 
     async deleteCourse(courseId: any) {
         try {
-            const course = await model.deleteOne({ _id: courseId })
+            const course = await courseModel.deleteOne({ _id: courseId })
             if (!course) {
                 throw createCustomError(`no Course with this id ${courseId}`, 404, Status.FAIL)
             }

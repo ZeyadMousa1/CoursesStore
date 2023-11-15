@@ -1,9 +1,6 @@
-import { model } from "../models/courses.model"; 
 import { NextFunction, Request, Response } from 'express';
 import { Icourse } from "../Interfaces/course.interface";
 import { courseService } from "../Services/courses.services";
-import { createCustomError } from "../utils/appError";
-import { Status } from "../utils/httpStatusText";
 
 class CoursesController
 {
