@@ -1,8 +1,7 @@
 import { courseModel } from "../models/courses.model"; 
 import { Icourse } from "../Interfaces/course.interface";
 import { Status } from "../utils/httpStatusText";
-import { AppError, createCustomError} from "../utils/appError";
-import { NextFunction } from "express";
+import {createCustomError} from "../utils/appError";
 
 class CourseService 
 {

@@ -1,10 +1,9 @@
 import { userModel } from "../models/user.model";
 import { Status } from "../utils/httpStatusText";
-import { IUser, LoginUser } from '../Interfaces/user.interface';
+import { IUser, UserPassword } from '../Interfaces/user.interface';
 import { createCustomError } from "../utils/appError";
-import { PasswordService } from "../utils/passwordService";
-import * as jwt from 'jsonwebtoken';
-import { JwtGenerator } from '../utils/Jwt';
+import { PasswordService } from "../helpers/jwt/passwordService";
+import { userController } from '../Controllers/user.controller';
 
 
 class UserService
@@ -27,59 +26,72 @@ class UserService
         }
     }
 
-    async register(user: IUser) {
-        const { firstName, lastName, email, password } = user;
-
-        // check if email is signed before
-        const oldUser = await userModel.findOne({ email: email })
-        if (oldUser) {
-            throw createCustomError(`user already exists`, 404, Status.FAIL)
-        }
-
-        //hash password
-        const hashedPassword = await PasswordService.hashPassword(password);
-
-        // create new user
-        const newUser = new userModel({
-            firstName,
-            lastName,
-            email,
-            password: hashedPassword
-        });
-
-        //generate jwt token
-        const token = JwtGenerator.generateJwt({ email: newUser.email, id: newUser._id })
-        newUser.token = token;
-        
-        await newUser.save();
-
-        return {
-            status: Status.SUCCESS,
-            data: {newUser}
-        }
-
+    async updateUser(IUser: IUser, userId: any) {
+        const { firstName, lastName, email, role } = IUser
+        try { 
+            const user = await userModel.findOneAndUpdate(
+                { _id: userId },
+                { firstName, lastName, email, role },
+                { new: true }
+            )
+            if (!user) {
+                throw createCustomError(`no user with this id ${userId}`, 404, Status.FAIL)
+            }
+            return {
+                status: Status.SUCCESS,
+                user
+            }
+        } catch (err) {
+            throw err;
+        } 
     }
 
-    async login(loginUser: LoginUser) {
-        const { email, passsword } = loginUser
-
-        if (!email && !passsword) {
-            throw createCustomError(`email and password are required`, 404, Status.FAIL)
-        }
-
-        const user = await userModel.findOne({ email })
-        const matchedPassword = await PasswordService.comparePassword(passsword, user!.password)
-
-        if (user && matchedPassword) {
-            const token = JwtGenerator.generateJwt({ email: user.email, id: user._id })
+    async deleteUser(userId: any) {
+        try {
+            const user = await userModel.findOneAndDelete({ _id: userId })
+            if (!user)
+                throw createCustomError(`no user with this id ${userId}`, 404, Status.FAIL)
             return {
-            status: Status.SUCCESS,
-                data: {
-                    token
-                }
+                Status: Status.SUCCESS,
+                message: "User Deleted"
             }
-        } else {
-            throw createCustomError(`Email or Password is invalid`, 404, Status.FAIL)
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async changePassword(IUser: UserPassword, userId: any) {
+        const { password } = IUser
+
+        const hashedPassword = await PasswordService.hashPassword(password);
+        try { 
+            const user = await userModel.findOneAndUpdate(
+                { _id: userId },
+                { password: hashedPassword, passwordChangedAt: Date.now() },
+                { new: true }
+            )
+            if (!user) {
+                throw createCustomError(`no user with this id ${userId}`, 404, Status.FAIL)
+            }
+            return {
+                status: Status.SUCCESS,
+                user
+            }
+        } catch (err) {
+            throw err;
+        } 
+    }
+
+    async getUser(userId: any) {
+        try {
+            const user = await userModel.findById(userId);
+            if (!user) throw createCustomError(`no user with this id ${userId}`, 404, Status.FAIL)
+            return {
+                status: Status.SUCCESS,
+                user
+            }
+        } catch (err) {
+            throw err
         }
     }
 }

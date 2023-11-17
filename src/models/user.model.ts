@@ -1,5 +1,7 @@
 import mongoose from "mongoose"
 import validator from "validator"
+import { userRouter } from "../routes/user.route"
+import { Roles } from "../utils/userRoles"
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -23,9 +25,25 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+
+    passwordChangedAt: {
+        type: Date
+    },
+
     token: {
         type: String,
         required: true
+    },
+
+    role: {
+        type: String,
+        enum: [Roles.USER, Roles.ADMIN, Roles.MANAGER],
+        default: Roles.USER
+    },
+
+    active: {
+        type: Boolean,
+        default: true
     }
 })
 

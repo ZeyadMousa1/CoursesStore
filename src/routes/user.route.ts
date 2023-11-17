@@ -1,17 +1,18 @@
 import express from 'express';
 import { userController } from '../Controllers/user.controller';
-import { verifyToken } from '../Middelware/verifyToken';
+import { verifyToken } from '../helpers/jwt/verifyToken';
+import { ManageRoles } from '../helpers/jwt/ManageRoles';
+import { Roles } from '../utils/userRoles';
 
 export const userRouter = express.Router();
 
-// Get All Users
 userRouter.route('/')
-    .get(verifyToken, userController.getAllUsers)
+    .get(verifyToken, ManageRoles.allowedTo(Roles.MANAGER),userController.getAllUsers)
 
-// Login
-userRouter.route('/register')
-    .post(userController.register)
+userRouter.route('/:id')
+    .put(verifyToken, ManageRoles.allowedTo(Roles.MANAGER),userController.updateUser)
+    .get(verifyToken, ManageRoles.allowedTo(Roles.MANAGER),userController.getUser)
+    .delete(verifyToken, ManageRoles.allowedTo(Roles.MANAGER),userController.deleteUser)
 
-// Register
-userRouter.route('/login')
-    .post(userController.login)
+// ChangePassword
+userRouter.put('/changePassword/:id',userController.changePassword)
